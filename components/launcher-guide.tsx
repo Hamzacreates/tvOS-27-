@@ -13,18 +13,20 @@ import {
   MonitorPlay,
   ShieldCheck,
   Sparkles,
+  Star,
+  RotateCcw,
   Wifi,
 } from "lucide-react"
 import { GuideContent } from "@/components/guide-content"
 
-type Screen = "welcome" | "profile" | "guide"
+type Screen = "welcome" | "profile" | "guide" | "complete"
 
 const steps = [
   { title: "Compatibility", detail: "Check your TV", icon: MonitorPlay },
   { title: "Developer options", detail: "Unlock the settings", icon: Sparkles },
   { title: "ADB connection", detail: "Enable debugging", icon: Wifi },
   { title: "Get the APK", detail: "Download from GitHub", icon: Download },
-  { title: "Make it yours", detail: "Install or restore", icon: House },
+  { title: "Install + verify", detail: "Set Home, keep a fallback", icon: House },
 ]
 
 export function LauncherGuide() {
@@ -34,7 +36,8 @@ export function LauncherGuide() {
   const [nameError, setNameError] = useState("")
   const [activeStep, setActiveStep] = useState(0)
   const [tvAddress, setTvAddress] = useState("")
-  const [compatibilityConfirmed, setCompatibilityConfirmed] = useState(false)
+  const [completedSteps, setCompletedSteps] = useState<number[]>([])
+  const [restoreOnReturn, setRestoreOnReturn] = useState(false)
 
   function continueToGuide(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -48,16 +51,32 @@ export function LauncherGuide() {
     setScreen("guide")
   }
 
+  function updateStepCompletion(step: number, complete: boolean) {
+    setCompletedSteps((current) => {
+      const next = complete ? [...new Set([...current, step])] : current.filter((index) => index < step)
+      return next.sort((first, second) => first - second)
+    })
+    if (!complete && activeStep > step) setActiveStep(step)
+  }
+
   function startOver() {
     setScreen("welcome")
+    setName("")
+    setDraftName("")
+    setNameError("")
     setActiveStep(0)
-    setCompatibilityConfirmed(false)
+    setTvAddress("")
+    setCompletedSteps([])
+    setRestoreOnReturn(false)
   }
+
+  const unlockedThrough = Math.min(steps.length - 1, Math.max(0, ...completedSteps.map((step) => step + 1)))
 
   return (
     <main className="app-shell">
       <div className="ambient ambient-one" aria-hidden="true" />
       <div className="ambient ambient-two" aria-hidden="true" />
+      <div className="ambient ambient-three" aria-hidden="true" />
 
       <header className="topbar">
         <a className="brand-lockup" href="#top" aria-label="tvOS 27 setup home" onClick={(event) => { event.preventDefault(); startOver() }}>
@@ -78,7 +97,7 @@ export function LauncherGuide() {
             <div className="eyebrow"><span className="eyebrow-line" /> YOUR BIG SCREEN, REIMAGINED</div>
             <h1 id="welcome-title">A little more<br /><span>cinematic.</span></h1>
             <p className="welcome-description">
-              Meet tvOS 27 for Android TV. A polished, Apple TV-inspired home screen—with a simple setup guide that keeps you in control.
+              Meet tvOS 27 for Android TV. Opens straight into setup—no pretend TV boot screen—then guides you through a colorful, Apple TV-inspired home while keeping every change in your hands.
             </p>
             <div className="welcome-actions">
               <button className="button button-primary button-large" onClick={() => setScreen("profile")}>
@@ -90,32 +109,24 @@ export function LauncherGuide() {
               <span><Check size={14} aria-hidden="true" /> Android TV & Google TV</span>
               <i aria-hidden="true" />
               <span><Check size={14} aria-hidden="true" /> Guided, step by step</span>
+              <i aria-hidden="true" />
+              <span><Check size={14} aria-hidden="true" /> Reversible setup</span>
             </div>
           </div>
 
-          <div className="preview-wrap" aria-label="Launcher interface preview">
+          <div className="preview-wrap" aria-label="tvOS 27 project screenshot">
             <div className="preview-glow" aria-hidden="true" />
             <div className="preview-frame">
               <img
                 className="preview-wallpaper"
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/user-profiles-in-the-tvos-17-control-center-Woz6FeSMGyzLbH7NDWwKjFMrlZ3R8E.avif"
-                alt="Cinematic TV home screen with a glass app dock and a profile chip."
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tvOS-26-2V4EgGvHC7EMiMG7X4NVUP4FSA1W4z.jpg"
+                alt="The supplied tvOS 27 GitHub repository screenshot, showing the launcher APK and project files."
               />
               <div className="preview-shade" />
-              <div className="preview-topline">
-                <div className="preview-search"><CircleHelp size={14} aria-hidden="true" /><span>Find your next favorite</span><kbd>/</kbd></div>
-                <div className="preview-profile"><span className="profile-orb">{name ? name.trim().charAt(0).toUpperCase() : "H"}</span><span>{name || "Your profile"}</span></div>
-              </div>
-              <div className="preview-caption"><span className="live-dot" /> THE HOME SCREEN, REIMAGINED</div>
-              <div className="preview-dock" aria-hidden="true">
-                <span className="dock-tile dock-tile-apple"><span>tv</span><small>OS</small></span>
-                <span className="dock-tile dock-tile-pink"><span>◉</span></span>
-                <span className="dock-tile dock-tile-blue"><span>▶</span></span>
-                <span className="dock-tile dock-tile-green"><span>♫</span></span>
-                <span className="dock-tile dock-tile-purple"><span>⌕</span></span>
-              </div>
+              <div className="preview-image-label"><span className="live-dot" /> THE PROJECT, READY TO EXPLORE</div>
+              <div className="preview-image-footer"><span>tvOS 27</span><i aria-hidden="true" /><span>ANDROID TV · GOOGLE TV</span></div>
             </div>
-            <div className="floating-note floating-note-top"><span className="note-icon"><Sparkles size={15} aria-hidden="true" /></span><span><b>One smooth setup</b><small>About 5 simple steps</small></span></div>
+            <div className="floating-note floating-note-top"><span className="note-icon"><Sparkles size={15} aria-hidden="true" /></span><span><b>One smooth setup</b><small>5 guided, verified steps</small></span></div>
             <div className="floating-note floating-note-bottom"><span className="note-icon note-icon-shield"><ShieldCheck size={16} aria-hidden="true" /></span><span><b>Keep the original launcher</b><small>Switch back any time</small></span></div>
           </div>
 
@@ -176,12 +187,13 @@ export function LauncherGuide() {
               <nav className="step-nav" aria-label="Setup steps">
                 {steps.map((step, index) => {
                   const Icon = step.icon
-                  const isDone = index < activeStep
+                  const isDone = completedSteps.includes(index)
                   return (
                     <button
                       className={`step-nav-item ${index === activeStep ? "is-active" : ""} ${isDone ? "is-done" : ""}`}
                       key={step.title}
                       onClick={() => setActiveStep(index)}
+                      disabled={index > unlockedThrough}
                       aria-current={index === activeStep ? "step" : undefined}
                     >
                       <span className="step-icon">{isDone ? <Check size={16} aria-hidden="true" /> : <Icon size={16} aria-hidden="true" />}</span>
@@ -201,8 +213,9 @@ export function LauncherGuide() {
                 name={name}
                 tvAddress={tvAddress}
                 onTvAddressChange={setTvAddress}
-                compatibilityConfirmed={compatibilityConfirmed}
-                onCompatibilityChange={setCompatibilityConfirmed}
+                startOnRestore={restoreOnReturn}
+                isStepComplete={completedSteps.includes(activeStep)}
+                onStepCompletion={(complete) => updateStepCompletion(activeStep, complete)}
               />
               <div className="guide-pagination">
                 <button className="button button-quiet" onClick={() => setActiveStep(Math.max(0, activeStep - 1))} disabled={activeStep === 0}>
@@ -210,18 +223,43 @@ export function LauncherGuide() {
                 </button>
                 <span className="pagination-status">STEP {String(activeStep + 1).padStart(2, "0")} <i /> 05</span>
                 {activeStep < steps.length - 1 ? (
-                  <button className="button button-primary" onClick={() => setActiveStep(activeStep + 1)} disabled={activeStep === 0 && !compatibilityConfirmed}>
-                    {activeStep === 0 ? "I’m ready" : "Next step"} <ArrowRight size={16} aria-hidden="true" />
+                  <button className="button button-primary" onClick={() => setActiveStep(activeStep + 1)} disabled={!completedSteps.includes(activeStep)}>
+                    Next step <ArrowRight size={16} aria-hidden="true" />
                   </button>
                 ) : (
-                  <a className="button button-primary" href="https://github.com/Hamzacreates/tvOS-27-" target="_blank" rel="noreferrer">
-                    Open project <ExternalLink size={15} aria-hidden="true" />
-                  </a>
+                  <button className="button button-primary" onClick={() => setScreen("complete")} disabled={!completedSteps.includes(activeStep)}>
+                    Finish setup <Check size={16} aria-hidden="true" />
+                  </button>
                 )}
               </div>
             </div>
           </div>
           <div className="guide-bottom-note"><ShieldCheck size={14} aria-hidden="true" /> You stay in control. The stock launcher is never removed by this guide.</div>
+        </section>
+      )}
+
+      {screen === "complete" && (
+        <section className="finish-layout screen-enter" aria-labelledby="finish-title">
+          <div className="finish-orbit finish-orbit-one" aria-hidden="true" />
+          <div className="finish-orbit finish-orbit-two" aria-hidden="true" />
+          <div className="finish-card glass-card">
+            <div className="finish-check"><Check size={29} strokeWidth={2.4} aria-hidden="true" /></div>
+            <div className="eyebrow eyebrow-centered"><span className="eyebrow-line" /> SETUP COMPLETE <span className="eyebrow-line" /></div>
+            <h1 id="finish-title">You&apos;re all set,<br /><span>{name}.</span></h1>
+            <p className="finish-message">Thanks for giving tvOS 27 a place in your living room. Your launcher is yours to enjoy—and your original Home app is still there if you ever want to switch back.</p>
+            <div className="finish-star-card">
+              <div className="finish-star-icon"><Star size={18} fill="currentColor" aria-hidden="true" /></div>
+              <div><b>Help the creators keep going</b><p>If this guide helped you, please give the repository a star. It means a lot to the people behind the project.</p></div>
+              <a className="finish-star-button" href="https://github.com/Hamzacreates/tvOS-27-" target="_blank" rel="noreferrer" aria-label="Open the tvOS 27 repository to give it a star">
+                <Star size={15} aria-hidden="true" /><span>Star the repo</span><ExternalLink size={13} aria-hidden="true" />
+              </a>
+            </div>
+            <div className="finish-actions">
+              <button className="button button-quiet" onClick={() => { setRestoreOnReturn(true); setActiveStep(4); setScreen("guide") }}><RotateCcw size={15} aria-hidden="true" /> Keep restore steps handy</button>
+              <button className="button button-primary" onClick={startOver}>Back to start <ArrowRight size={15} aria-hidden="true" /></button>
+            </div>
+            <div className="finish-footnote"><ShieldCheck size={14} aria-hidden="true" /> No account created. Your name stayed in this browser session.</div>
+          </div>
         </section>
       )}
 

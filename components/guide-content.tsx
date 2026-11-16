@@ -24,16 +24,17 @@ type Props = {
   name: string
   tvAddress: string
   onTvAddressChange: (address: string) => void
-  compatibilityConfirmed: boolean
-  onCompatibilityChange: (confirmed: boolean) => void
+  startOnRestore: boolean
+  isStepComplete: boolean
+  onStepCompletion: (complete: boolean) => void
 }
 
 type Assistant = "Google Antigravity" | "Claude Code"
 type PromptMode = "install" | "restore"
 
-export function GuideContent({ step, name, tvAddress, onTvAddressChange, compatibilityConfirmed, onCompatibilityChange }: Props) {
+export function GuideContent({ step, name, tvAddress, onTvAddressChange, startOnRestore, isStepComplete, onStepCompletion }: Props) {
   const [assistant, setAssistant] = useState<Assistant>("Google Antigravity")
-  const [promptMode, setPromptMode] = useState<PromptMode>("install")
+  const [promptMode, setPromptMode] = useState<PromptMode>(startOnRestore ? "restore" : "install")
   const [copyState, setCopyState] = useState("Copy prompt")
 
   const target = tvAddress.trim() || "[TV_IP:PORT_FROM_YOUR_TV]"
@@ -82,8 +83,8 @@ Please guide me carefully:
           <div className="readiness-item"><span className="readiness-number">02</span><b>You have access to its settings</b><small>You’ll turn on Developer options yourself.</small></div>
           <div className="readiness-item"><span className="readiness-number">03</span><b>You can approve prompts on screen</b><small>Keep the remote nearby during setup.</small></div>
         </div>
-        <label className={`confirm-row ${compatibilityConfirmed ? "is-checked" : ""}`}>
-          <input type="checkbox" checked={compatibilityConfirmed} onChange={(event) => onCompatibilityChange(event.target.checked)} />
+        <label className={`confirm-row ${isStepComplete ? "is-checked" : ""}`}>
+          <input type="checkbox" checked={isStepComplete} onChange={(event) => onStepCompletion(event.target.checked)} />
           <span className="custom-check"><Check size={13} aria-hidden="true" /></span>
           <span><b>I have an Android TV or Google TV</b><small>I understand this guide won’t work on a standard non-Android smart TV.</small></span>
         </label>
@@ -103,6 +104,7 @@ Please guide me carefully:
           <Instruction number="4" title="Return to Settings" text="Developer options should now appear under Device Preferences or System." />
         </div>
         <div className="inline-note"><Info size={15} aria-hidden="true" /><span>On some TVs the item is called “Android TV OS build.” If you don’t see it, check the manufacturer’s support guide for your exact model.</span></div>
+        <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="Developer options are now visible on my TV." detail="You can come back to this step if the menu label is different." />
       </article>
     )
   }
@@ -125,6 +127,8 @@ Please guide me carefully:
           </div>
         </div>
         <div className="security-note"><ShieldCheck size={16} aria-hidden="true" /><span>Use the exact IP and port shown by your TV. The example above is only a format—not an address to copy.</span></div>
+        <details className="troubleshooting"><summary>Wireless debugging isn’t available?</summary><div className="troubleshooting-content"><p>Some TVs only expose ADB over USB or use a separate “Network debugging” switch. Check your TV maker’s support page for your model; don’t guess a port or connect to a device you don’t recognize.</p><p>After a reboot, the TV may show a new address or port. Use the current value displayed on the TV.</p></div></details>
+        <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="Debugging is enabled and I found the current TV address." detail="Only approve a computer you own and recognize." />
       </article>
     )
   }
@@ -159,6 +163,7 @@ Please guide me carefully:
           <span>Keep the file somewhere easy to find, like Downloads.</span>
         </div>
         <div className="inline-note"><Info size={15} aria-hidden="true" /><span>Only install APKs you trust. Check the file and publisher before continuing.</span></div>
+        <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="I downloaded tvOS 27 stable.apk from this repository." detail="Keep the original APK file until you’ve confirmed the install." />
       </article>
     )
   }
@@ -198,6 +203,8 @@ Please guide me carefully:
       </div>
       <div className="final-safety"><ShieldCheck size={16} aria-hidden="true" /><div><b>Reversible by design</b><span>The prompt asks your assistant to record the original Home app first and ask before switching. It never roots your TV or removes the stock launcher.</span></div></div>
       <div className="assistant-footnote">If wireless debugging asks for a pairing code, follow the on-screen instructions. Menus and ADB support differ by TV model.</div>
+      <details className="troubleshooting"><summary>Quick fixes and a safe fallback</summary><div className="troubleshooting-content"><p><b>ADB can’t connect:</b> confirm the TV and computer are on the same network, re-check the on-screen port, and accept the authorization prompt on the TV.</p><p><b>The app won’t appear as Home:</b> don’t force it. Open Settings → Apps → Default apps → Home app and check whether the launcher is listed for this TV.</p><p><b>Want to undo it?</b> Use the “Restore original” prompt above and the original Home activity recorded before the switch.</p></div></details>
+      <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="I installed tvOS 27 and verified the Home screen opens." detail="If you’re not ready yet, keep this page open and finish later." />
     </article>
   )
 }
@@ -210,6 +217,16 @@ function StepHeader({ number, label, title, description, icon }: { number: strin
       <h2 id="step-title">{title}</h2>
       <p>{description}</p>
     </div>
+  )
+}
+
+function StepCompletion({ isComplete, onChange, label, detail }: { isComplete: boolean; onChange: (complete: boolean) => void; label: string; detail: string }) {
+  return (
+    <label className={`confirm-row step-completion ${isComplete ? "is-checked" : ""}`}>
+      <input type="checkbox" checked={isComplete} onChange={(event) => onChange(event.target.checked)} />
+      <span className="custom-check"><Check size={13} aria-hidden="true" /></span>
+      <span><b>{label}</b><small>{detail}</small></span>
+    </label>
   )
 }
 
