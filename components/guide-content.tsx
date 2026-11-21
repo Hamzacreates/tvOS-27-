@@ -15,8 +15,6 @@ import {
   Wifi,
 } from "lucide-react"
 
-const rawApkUrl = "https://raw.githubusercontent.com/Hamzacreates/tvOS-27-/main/tvOS%2027%20stable.apk"
-
 type Props = {
   step: number
   name: string
@@ -30,28 +28,64 @@ type Props = {
 type Assistant = "Google Antigravity" | "Claude Code"
 type PromptMode = "install" | "restore"
 
+function isValidPort(port?: string) {
+  return port === undefined || (Number(port) > 0 && Number(port) <= 65535)
+}
+
+function isValidIpv6(address: string) {
+  if (!/^[0-9a-fA-F:]+$/.test(address)) return false
+
+  try {
+    return Boolean(new URL(`http://[${address}]/`).hostname)
+  } catch {
+    return false
+  }
+}
+
+function isValidAdbAddress(value: string) {
+  const ipv4Match = value.match(/^(\d{1,3}(?:\.\d{1,3}){3})(?::(\d{1,5}))?$/)
+  if (ipv4Match) {
+    const octets = ipv4Match[1].split(".")
+    return octets.every((octet) => Number(octet) <= 255) && isValidPort(ipv4Match[2])
+  }
+
+  const bracketedIpv6Match = value.match(/^\[([0-9a-fA-F:]+)\](?::(\d{1,5}))?$/)
+  if (bracketedIpv6Match) {
+    return isValidIpv6(bracketedIpv6Match[1]) && isValidPort(bracketedIpv6Match[2])
+  }
+
+  return isValidIpv6(value)
+}
+
 export function GuideContent({ step, name, tvAddress, onTvAddressChange, startOnRestore, isStepComplete, onStepCompletion }: Props) {
   const [assistant, setAssistant] = useState<Assistant>("Google Antigravity")
   const [promptMode, setPromptMode] = useState<PromptMode>(startOnRestore ? "restore" : "install")
   const [copyState, setCopyState] = useState("Copy prompt")
 
-  const target = tvAddress.trim() || "[TV_IP:PORT_FROM_YOUR_TV]"
-  const installPrompt = `I’m using ${assistant} to set up the tvOS 27 launcher on my own Android TV / Google TV. My TV’s ADB address is ${target}. My name is ${name}.
+  const enteredAddress = tvAddress.trim()
+  const addressIsValid = Boolean(enteredAddress) && isValidAdbAddress(enteredAddress)
+  const addressIsInvalid = Boolean(enteredAddress) && !addressIsValid
+  const addressForPrompt = addressIsValid ? JSON.stringify(enteredAddress) : "not provided yet"
+  const connectionTargetInstruction = addressIsValid
+    ? `Connect only to ${addressForPrompt}.`
+    : "Ask me for the exact current IP address and port shown by the TV. Do not connect, scan, or guess until I provide it."
+
+  const installPrompt = `I’m using ${assistant} to set up the tvOS 27 launcher on my own Android TV / Google TV. My TV’s current ADB address is ${addressForPrompt}. My name is ${name}.
 
 Please guide me one step at a time and only work with that TV on my local network.
 
 1. Check whether Android Platform Tools (adb) are installed. If not, show me how to get them from the official Android developer site and wait for me to finish.
 2. Find the downloaded file named “tvOS 27 stable.apk” in my Downloads folder (or ask me to choose it). Inspect its manifest to identify the package name and HOME/launcher activity; do not guess either value.
-3. Connect only to ${target}. Use the exact address and port shown by the TV’s Wireless debugging / network debugging screen. If it asks for a pairing code or an approval on the TV, stop and tell me what to approve. Never scan the network or try other devices or ports.
+3. ${connectionTargetInstruction} Use the exact address and port shown by the TV’s Wireless debugging / network debugging screen. If it asks for a pairing code or an approval on the TV, stop and tell me what to approve. Never scan the network or try other devices or ports.
 4. Confirm the connected device with adb devices -l. Before changing anything, identify and record the TV’s current default Home activity so we can restore it.
 5. Install the APK with adb install -r using the exact file path. Verify the install succeeded.
 6. Before changing the Home app, show me the exact launcher component and ask me to confirm. If I approve and the TV supports it, use adb shell cmd package set-home-activity <package>/<activity>. Otherwise, guide me through Settings > Apps > Default apps > Home app. Do not root the TV, disable or uninstall its stock launcher, bypass security checks, or change unrelated settings.
 7. Give me the exact restore steps using the original Home activity you recorded. Do not claim a step succeeded unless its output confirms it.`
 
-  const restorePrompt = `I want to switch my own Android TV / Google TV back to its original Home launcher. Its ADB address is ${target}.
+  const restorePrompt = `I want to switch my own Android TV / Google TV back to its original Home launcher. Its current ADB address is ${addressForPrompt}.
 
 Please guide me carefully:
-1. Connect only to ${target}, using the exact address and port shown in the TV’s Wireless debugging / network debugging screen. If the TV asks for approval, stop and ask me to approve it. Do not scan for other devices.
+1. ${connectionTargetInstruction} Use the exact address and port shown in the TV’s Wireless debugging / network debugging screen. If the TV asks for approval, stop and ask me to approve it. Do not scan for other devices.
 2. Use the original Home package/activity recorded before tvOS 27 was selected. If it was not recorded, help me find the stock launcher in Settings > Apps > Default apps > Home app and ask me to choose it; do not guess.
 3. Restore the original Home app using Android’s supported settings. If adb shell cmd package set-home-activity is supported, show me the exact command with the recorded original package/activity before running it and ask me to confirm.
 4. Verify that the TV returns to its original home screen. Do not uninstall or disable any app unless I explicitly ask.`
@@ -137,11 +171,12 @@ Please guide me carefully:
         <StepHeader number="04" label="THE APP FILE" title="Download tvOS 27." description="Save the APK to Downloads, then continue when you’re ready." icon={<Download size={18} aria-hidden="true" />} />
         <div className="apk-download-card">
           <span className="apk-download-icon"><Download size={20} aria-hidden="true" /></span>
-          <span className="apk-download-copy"><b>tvOS 27 stable.apk</b><small>Direct file · Android package</small></span>
+          <span className="apk-download-copy"><b>tvOS 27 stable.apk</b><small>Direct APK · 884 KB · Android TV / Google TV</small></span>
           <span className="apk-download-ready"><ShieldCheck size={14} aria-hidden="true" /> Ready</span>
         </div>
-        <a className="button button-primary download-button" href={rawApkUrl} download="tvOS 27 stable.apk"><Download size={18} aria-hidden="true" /> Download APK</a>
-        <div className="download-note"><Info size={16} aria-hidden="true" /><span>Android may ask you to confirm installing this app. Only install files you trust.</span></div>
+        <a className="button button-primary download-button" href="/download" download="tvOS 27 stable.apk"><Download size={18} aria-hidden="true" /> Download APK</a>
+        <a className="download-fallback" href="/download" download="tvOS 27 stable.apk">If it doesn&apos;t start, tap here to try again.</a>
+        <div className="download-note"><Info size={16} aria-hidden="true" /><span>Your browser downloads the file directly; no repository page opens. Android may ask you to confirm installation—only install files you trust.</span></div>
         <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="The APK is in my Downloads folder." detail="Keep the file until you’ve confirmed the install." />
       </article>
     )
@@ -165,8 +200,12 @@ Please guide me carefully:
       </div>
 
       <label className="address-label" htmlFor="tv-address">Your TV&apos;s IP address <span>Optional for now</span></label>
-      <div className="address-field"><Wifi size={17} aria-hidden="true" /><input id="tv-address" type="text" inputMode="decimal" autoComplete="off" placeholder="192.168.1.42:5555 or the address shown on TV" value={tvAddress} onChange={(event) => onTvAddressChange(event.target.value)} /><span className="address-lock" title="This page does not send the address anywhere"><ShieldCheck size={14} aria-hidden="true" /><span>Local network</span></span></div>
-      <p className="address-hint">Enter the exact address and port shown in Wireless debugging. This page does not connect to your TV.</p>
+      <div className="address-field"><Wifi size={17} aria-hidden="true" /><input id="tv-address" type="text" inputMode="text" autoComplete="off" maxLength={45} placeholder="192.168.1.42:5555" value={tvAddress} onChange={(event) => onTvAddressChange(event.target.value)} aria-invalid={addressIsInvalid} aria-describedby="tv-address-hint" /><span className="address-lock" title="This page does not send the address anywhere"><ShieldCheck size={14} aria-hidden="true" /><span>Local network</span></span></div>
+      <p id="tv-address-hint" className={`address-hint ${addressIsInvalid ? "address-hint-error" : ""}`} role={addressIsInvalid ? "alert" : undefined}>
+        {addressIsInvalid
+          ? "Enter a valid IPv4 address or bracketed IPv6 address, with an optional port. Leave it blank and the prompt will ask before connecting."
+          : "Use the exact address shown in Wireless debugging. For IPv6 with a port, use [address]:port. This page never connects to your TV."}
+      </p>
 
         <details className="prompt-disclosure">
           <summary><span><b>Show the guided setup prompt</b><small>Copy it into your assistant when you’re ready</small></span><ChevronDown size={18} aria-hidden="true" /></summary>

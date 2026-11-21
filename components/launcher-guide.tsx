@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   ChevronRight,
+  CircleAlert,
   CircleHelp,
   Download,
   House,
@@ -70,6 +71,19 @@ export function LauncherGuide() {
 
   const unlockedThrough = Math.min(steps.length - 1, Math.max(0, ...completedSteps.map((step) => step + 1)))
 
+  useEffect(() => {
+    if (screen !== "guide") return
+
+    const frame = window.requestAnimationFrame(() => {
+      document.querySelector(".guide-heading")?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start",
+      })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [activeStep, screen])
+
   return (
     <main className="app-shell">
       <div className="ambient ambient-one" aria-hidden="true" />
@@ -92,8 +106,12 @@ export function LauncherGuide() {
             <div className="eyebrow"><span className="eyebrow-line" /> YOUR BIG SCREEN, REIMAGINED</div>
             <h1 id="welcome-title">A little more<br /><span>cinematic.</span></h1>
             <p className="welcome-description">
-              Meet tvOS 27 for Android TV. Follow a clear, reversible setup—no root, and no changes without your approval.
+              Meet tvOS 27 for Android TV. Follow a clear, reversible setup—no root, and nothing changes without your approval.
             </p>
+            <div className="hero-compatibility" role="note">
+              <CircleAlert size={17} aria-hidden="true" />
+              <span><b>Android TV or Google TV only.</b> Not for Samsung Tizen, LG webOS, Roku, or other non-Android TVs.</span>
+            </div>
             <div className="welcome-actions">
               <button className="button button-primary button-large" onClick={() => setScreen("profile")}>
                 Let&apos;s set up your TV <ArrowRight size={17} aria-hidden="true" />
@@ -101,7 +119,7 @@ export function LauncherGuide() {
               <span className="time-note"><ShieldCheck size={15} aria-hidden="true" /> No root. Your choice, always reversible.</span>
             </div>
             <div className="welcome-proof" aria-label="Setup highlights">
-              <span><Check size={14} aria-hidden="true" /> Android TV & Google TV</span>
+              <span><Check size={14} aria-hidden="true" /> Android TV & Google TV only</span>
               <i aria-hidden="true" />
               <span><Check size={14} aria-hidden="true" /> Guided, step by step</span>
               <i aria-hidden="true" />
@@ -121,7 +139,7 @@ export function LauncherGuide() {
               <div className="preview-image-label"><span className="live-dot" /> THE PROJECT, READY TO EXPLORE</div>
               <div className="preview-image-footer"><span>tvOS 27</span><i aria-hidden="true" /><span>ANDROID TV · GOOGLE TV</span></div>
             </div>
-            <div className="floating-note floating-note-top"><span className="note-icon"><Sparkles size={15} aria-hidden="true" /></span><span><b>One smooth setup</b><small>5 guided, verified steps</small></span></div>
+            <div className="floating-note floating-note-top"><span className="note-icon"><Sparkles size={15} aria-hidden="true" /></span><span><b>One smooth setup</b><small>5 clear, user-guided steps</small></span></div>
             <div className="floating-note floating-note-bottom"><span className="note-icon note-icon-shield"><ShieldCheck size={16} aria-hidden="true" /></span><span><b>Keep the original launcher</b><small>Switch back any time</small></span></div>
           </div>
 

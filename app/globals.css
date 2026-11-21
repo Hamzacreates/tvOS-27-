@@ -792,3 +792,30 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.guide-heading { scroll-margin-top: 92px; }
+.hero-compatibility { display: flex; max-width: 470px; align-items: flex-start; gap: 10px; margin-top: 16px; padding: 12px 14px; border: 1px solid rgba(246,184,116,.2); border-radius: 14px; color: #c5b8a9; background: rgba(219,146,72,.065); font-size: 12px; line-height: 1.55; }
+.hero-compatibility svg { flex: 0 0 auto; margin-top: 1px; color: #ffc481; }
+.hero-compatibility b { color: #ffe0b8; font-weight: 700; }
+.download-fallback { display: block; width: fit-content; margin: 11px auto 0; color: #d6c8ff; font-size: 12px; text-align: center; text-decoration: underline; text-underline-offset: 3px; }
+.download-fallback:hover { color: #f0eaff; }
+.address-hint-error { color: #ffb8b8; }
+
+@media (min-width: 821px) {
+  .step-header > p { font-size: 14px; }
+  .compatibility-callout p, .network-card > p { font-size: 12px; }
+  .readiness-item b { font-size: 12px; }
+  .readiness-item small { font-size: 10px; }
+  .confirm-row small, .inline-note, .security-note, .troubleshooting-content { font-size: 11px; }
+  .instruction-row b { font-size: 13px; }
+  .instruction-row p { font-size: 12px; }
+  .assistant-copy small, .address-hint { font-size: 11px; }
+  .assistant-footnote { font-size: 10px; }
+}
+
+@media (max-width: 600px) {
+  .hero-compatibility { gap: 9px; margin-top: 14px; padding: 12px; font-size: 13px; }
+  .download-fallback { min-height: 40px; align-content: center; font-size: 13px; }
+  .address-hint-error { font-size: 12px; line-height: 1.5; }
+  .guide-pagination { position: sticky; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 8; padding: 8px; border: 1px solid rgba(255,255,255,.12); border-radius: 17px; background: rgba(10,13,20,.88); box-shadow: 0 12px 35px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.07); backdrop-filter: blur(20px) saturate(1.3); }
+}
