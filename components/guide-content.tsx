@@ -2,12 +2,11 @@
 
 import { useState, type ReactNode } from "react"
 import {
-  ArrowUpRight,
   Check,
+  ChevronDown,
   CircleAlert,
   Clipboard,
   Download,
-  ExternalLink,
   House,
   Info,
   RotateCcw,
@@ -16,7 +15,6 @@ import {
   Wifi,
 } from "lucide-react"
 
-const repositoryUrl = "https://github.com/Hamzacreates/tvOS-27-"
 const rawApkUrl = "https://raw.githubusercontent.com/Hamzacreates/tvOS-27-/main/tvOS%2027%20stable.apk"
 
 type Props = {
@@ -112,12 +110,12 @@ Please guide me carefully:
   if (step === 2) {
     return (
       <article className="content-card step-enter" aria-labelledby="step-title">
-        <StepHeader number="03" label="ON YOUR TV + COMPUTER" title="Turn on debugging, then find your TV." description="Your computer and TV need to be on the same trusted home network." icon={<Wifi size={18} aria-hidden="true" />} />
+        <StepHeader number="03" label="ON YOUR TV" title="Enable debugging." description="Keep your TV and computer on the same trusted home network." icon={<Wifi size={18} aria-hidden="true" />} />
         <div className="debug-layout">
           <div className="instruction-list compact-list">
             <Instruction number="1" title="Open Developer options" text="Settings → Device Preferences (or System) → Developer options." />
-            <Instruction number="2" title="Enable debugging" text="Turn on USB debugging. If your TV offers Wireless debugging or Network debugging, enable that too for an IP connection." />
-            <Instruction number="3" title="Approve your computer" text="Accept the authorization prompt on the TV when it appears. Only approve a computer you recognize." />
+            <Instruction number="2" title="Turn on network debugging" text="Enable Wireless debugging or Network debugging if your TV offers it." />
+            <Instruction number="3" title="Approve your computer" text="Accept the on-screen prompt only for a computer you recognize." />
           </div>
           <div className="network-card">
             <div className="network-card-top"><span className="network-icon"><Wifi size={16} aria-hidden="true" /></span><span className="network-status">LOCAL NETWORK</span></div>
@@ -136,41 +134,22 @@ Please guide me carefully:
   if (step === 3) {
     return (
       <article className="content-card step-enter" aria-labelledby="step-title">
-        <StepHeader number="04" label="FROM YOUR REPOSITORY" title="Download the tvOS 27 APK." description="The APK is in your GitHub project. Open it on the computer you’ll use to connect to the TV." icon={<Download size={18} aria-hidden="true" />} />
-        <a className="repository-button" href={repositoryUrl} target="_blank" rel="noreferrer">
-          <span className="repo-mark">GH</span><span><b>Hamzacreates / tvOS-27-</b><small>Open the public GitHub repository</small></span><ArrowUpRight size={18} aria-hidden="true" />
-        </a>
-        <div className="download-steps">
-          <div className="download-step-copy"><span className="mini-step-number">A</span><div><b>Open “tvOS 27 stable.apk”</b><p>From the repository file list, select the APK file.</p></div></div>
-          <div className="download-step-copy"><span className="mini-step-number">B</span><div><b>Use the download button</b><p>On the APK file page, choose the download icon shown in the guide screenshots.</p></div></div>
+        <StepHeader number="04" label="THE APP FILE" title="Download tvOS 27." description="Save the APK to Downloads, then continue when you’re ready." icon={<Download size={18} aria-hidden="true" />} />
+        <div className="apk-download-card">
+          <span className="apk-download-icon"><Download size={20} aria-hidden="true" /></span>
+          <span className="apk-download-copy"><b>tvOS 27 stable.apk</b><small>Direct file · Android package</small></span>
+          <span className="apk-download-ready"><ShieldCheck size={14} aria-hidden="true" /> Ready</span>
         </div>
-        <div className="screenshot-guide">
-          <figure className="screenshot-figure screenshot-repo">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tvOS-26-2V4EgGvHC7EMiMG7X4NVUP4FSA1W4z.jpg" alt="GitHub repository page listing the tvOS 27 stable APK file." loading="lazy" />
-            <figcaption><span>01</span> Find the APK in your repository</figcaption>
-          </figure>
-          <figure className="screenshot-figure">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-aY4rwQ47LqJnFAkip71gADx1dZIpM4.png" alt="GitHub APK file page showing the download icon in the toolbar." loading="lazy" />
-            <figcaption><span>02</span> Download the APK file</figcaption>
-          </figure>
-          <figure className="screenshot-figure">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-8wfxv4vNssivtgwgW7vWHAZFDaf7OY.png" alt="The APK file page with its download control highlighted." loading="lazy" />
-            <figcaption><span>03</span> Save it to your computer</figcaption>
-          </figure>
-        </div>
-        <div className="download-actions">
-          <a className="button button-primary" href={rawApkUrl} target="_blank" rel="noreferrer"><Download size={16} aria-hidden="true" /> Download APK <ExternalLink size={14} aria-hidden="true" /></a>
-          <span>Keep the file somewhere easy to find, like Downloads.</span>
-        </div>
-        <div className="inline-note"><Info size={15} aria-hidden="true" /><span>Only install APKs you trust. Check the file and publisher before continuing.</span></div>
-        <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="I downloaded tvOS 27 stable.apk from this repository." detail="Keep the original APK file until you’ve confirmed the install." />
+        <a className="button button-primary download-button" href={rawApkUrl} download="tvOS 27 stable.apk"><Download size={18} aria-hidden="true" /> Download APK</a>
+        <div className="download-note"><Info size={16} aria-hidden="true" /><span>Android may ask you to confirm installing this app. Only install files you trust.</span></div>
+        <StepCompletion isComplete={isStepComplete} onChange={onStepCompletion} label="The APK is in my Downloads folder." detail="Keep the file until you’ve confirmed the install." />
       </article>
     )
   }
 
   return (
     <article className="content-card step-enter" aria-labelledby="step-title">
-      <StepHeader number="05" label="THE FINAL STEP" title="Connect, install, and choose your Home." description={`A coding assistant can guide ADB on your computer. ${name}, you’ll approve the connection and the Home-app change yourself.`} icon={<House size={18} aria-hidden="true" />} />
+        <StepHeader number="05" label="THE FINAL STEP" title="Install, then choose Home." description="A trusted assistant can guide setup on your computer. You approve every change." icon={<House size={18} aria-hidden="true" />} />
       <div className="assistant-label">PICK THE ASSISTANT YOU HAVE ACCESS TO</div>
       <div className="assistant-options" role="group" aria-label="Choose a coding assistant">
         <button type="button" className={`assistant-option ${assistant === "Google Antigravity" ? "is-selected" : ""}`} onClick={() => setAssistant("Google Antigravity")} aria-pressed={assistant === "Google Antigravity"}>
@@ -186,10 +165,13 @@ Please guide me carefully:
       </div>
 
       <label className="address-label" htmlFor="tv-address">Your TV&apos;s IP address <span>Optional for now</span></label>
-      <div className="address-field"><Wifi size={17} aria-hidden="true" /><input id="tv-address" type="text" inputMode="decimal" autoComplete="off" placeholder="192.168.1.42:5555 or the address shown on TV" value={tvAddress} onChange={(event) => onTvAddressChange(event.target.value)} /><span className="address-lock"><ShieldCheck size={14} aria-hidden="true" /> Local network</span></div>
+      <div className="address-field"><Wifi size={17} aria-hidden="true" /><input id="tv-address" type="text" inputMode="decimal" autoComplete="off" placeholder="192.168.1.42:5555 or the address shown on TV" value={tvAddress} onChange={(event) => onTvAddressChange(event.target.value)} /><span className="address-lock" title="This page does not send the address anywhere"><ShieldCheck size={14} aria-hidden="true" /><span>Local network</span></span></div>
       <p className="address-hint">Enter the exact address and port shown in Wireless debugging. This page does not connect to your TV.</p>
 
-      <div className="prompt-heading"><div><span className="assistant-label">READY-TO-PASTE INSTRUCTIONS</span><p>Open your assistant, paste the prompt below, and follow its steps.</p></div><span className="prompt-safety"><ShieldCheck size={14} aria-hidden="true" /> You approve changes</span></div>
+        <details className="prompt-disclosure">
+          <summary><span><b>Show the guided setup prompt</b><small>Copy it into your assistant when you’re ready</small></span><ChevronDown size={18} aria-hidden="true" /></summary>
+          <div className="prompt-disclosure-content">
+        <div className="prompt-heading"><div><span className="assistant-label">READY-TO-PASTE INSTRUCTIONS</span><p>Open your assistant, paste the prompt below, and follow its steps.</p></div><span className="prompt-safety"><ShieldCheck size={14} aria-hidden="true" /> You approve changes</span></div>
       <div className="prompt-tabs" role="group" aria-label="Setup prompt">
         <button type="button" aria-pressed={promptMode === "install"} className={promptMode === "install" ? "is-active" : ""} onClick={() => { setPromptMode("install"); setCopyState("Copy prompt") }}><Sparkles size={14} aria-hidden="true" /> Install tvOS 27</button>
         <button type="button" aria-pressed={promptMode === "restore"} className={promptMode === "restore" ? "is-active" : ""} onClick={() => { setPromptMode("restore"); setCopyState("Copy prompt") }}><RotateCcw size={14} aria-hidden="true" /> Restore original</button>
@@ -200,7 +182,9 @@ Please guide me carefully:
         <button type="button" className={`copy-button ${copyState === "Copied" ? "is-copied" : ""}`} onClick={copyPrompt} aria-live="polite">
           {copyState === "Copied" ? <Check size={15} aria-hidden="true" /> : <Clipboard size={15} aria-hidden="true" />}{copyState}
         </button>
-      </div>
+          </div>
+          </div>
+        </details>
       <div className="final-safety"><ShieldCheck size={16} aria-hidden="true" /><div><b>Reversible by design</b><span>The prompt asks your assistant to record the original Home app first and ask before switching. It never roots your TV or removes the stock launcher.</span></div></div>
       <div className="assistant-footnote">If wireless debugging asks for a pairing code, follow the on-screen instructions. Menus and ADB support differ by TV model.</div>
       <details className="troubleshooting"><summary>Quick fixes and a safe fallback</summary><div className="troubleshooting-content"><p><b>ADB can’t connect:</b> confirm the TV and computer are on the same network, re-check the on-screen port, and accept the authorization prompt on the TV.</p><p><b>The app won’t appear as Home:</b> don’t force it. Open Settings → Apps → Default apps → Home app and check whether the launcher is listed for this TV.</p><p><b>Want to undo it?</b> Use the “Restore original” prompt above and the original Home activity recorded before the switch.</p></div></details>

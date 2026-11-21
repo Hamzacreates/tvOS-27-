@@ -8,12 +8,10 @@ import {
   ChevronRight,
   CircleHelp,
   Download,
-  ExternalLink,
   House,
   MonitorPlay,
   ShieldCheck,
   Sparkles,
-  Star,
   RotateCcw,
   Wifi,
 } from "lucide-react"
@@ -25,7 +23,7 @@ const steps = [
   { title: "Compatibility", detail: "Check your TV", icon: MonitorPlay },
   { title: "Developer options", detail: "Unlock the settings", icon: Sparkles },
   { title: "ADB connection", detail: "Enable debugging", icon: Wifi },
-  { title: "Get the APK", detail: "Download from GitHub", icon: Download },
+  { title: "Get the APK", detail: "Direct download", icon: Download },
   { title: "Install + verify", detail: "Set Home, keep a fallback", icon: House },
 ]
 
@@ -85,10 +83,7 @@ export function LauncherGuide() {
           <span className="brand-divider" />
           <span className="brand-caption">SETUP COMPANION</span>
         </a>
-        <a className="repository-link" href="https://github.com/Hamzacreates/tvOS-27-" target="_blank" rel="noreferrer">
-          <span>View the project</span>
-          <ExternalLink size={15} aria-hidden="true" />
-        </a>
+        <span className="topbar-status"><span className="topbar-status-dot" aria-hidden="true" /> ANDROID TV SETUP</span>
       </header>
 
       {screen === "welcome" && (
@@ -97,7 +92,7 @@ export function LauncherGuide() {
             <div className="eyebrow"><span className="eyebrow-line" /> YOUR BIG SCREEN, REIMAGINED</div>
             <h1 id="welcome-title">A little more<br /><span>cinematic.</span></h1>
             <p className="welcome-description">
-              Meet tvOS 27 for Android TV. Opens straight into setup—no pretend TV boot screen—then guides you through a colorful, Apple TV-inspired home while keeping every change in your hands.
+              Meet tvOS 27 for Android TV. Follow a clear, reversible setup—no root, and no changes without your approval.
             </p>
             <div className="welcome-actions">
               <button className="button button-primary button-large" onClick={() => setScreen("profile")}>
@@ -120,7 +115,7 @@ export function LauncherGuide() {
               <img
                 className="preview-wallpaper"
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tvOS-26-2V4EgGvHC7EMiMG7X4NVUP4FSA1W4z.jpg"
-                alt="The supplied tvOS 27 GitHub repository screenshot, showing the launcher APK and project files."
+                alt="A preview of the tvOS-inspired launcher running on a television."
               />
               <div className="preview-shade" />
               <div className="preview-image-label"><span className="live-dot" /> THE PROJECT, READY TO EXPLORE</div>
@@ -203,6 +198,7 @@ export function LauncherGuide() {
                   )
                 })}
               </nav>
+              <div className="step-swipe-hint">Swipe to explore all five steps <ArrowRight size={13} aria-hidden="true" /></div>
               <div className="sidebar-help"><span className="help-icon"><CircleHelp size={16} aria-hidden="true" /></span><span><b>Not sure about a setting?</b><small>TV menus vary by brand. Look for a similar label.</small></span></div>
             </aside>
 
@@ -246,14 +242,7 @@ export function LauncherGuide() {
             <div className="finish-check"><Check size={29} strokeWidth={2.4} aria-hidden="true" /></div>
             <div className="eyebrow eyebrow-centered"><span className="eyebrow-line" /> SETUP COMPLETE <span className="eyebrow-line" /></div>
             <h1 id="finish-title">You&apos;re all set,<br /><span>{name}.</span></h1>
-            <p className="finish-message">Thanks for giving tvOS 27 a place in your living room. Your launcher is yours to enjoy—and your original Home app is still there if you ever want to switch back.</p>
-            <div className="finish-star-card">
-              <div className="finish-star-icon"><Star size={18} fill="currentColor" aria-hidden="true" /></div>
-              <div><b>Help the creators keep going</b><p>If this guide helped you, please give the repository a star. It means a lot to the people behind the project.</p></div>
-              <a className="finish-star-button" href="https://github.com/Hamzacreates/tvOS-27-" target="_blank" rel="noreferrer" aria-label="Open the tvOS 27 repository to give it a star">
-                <Star size={15} aria-hidden="true" /><span>Star the repo</span><ExternalLink size={13} aria-hidden="true" />
-              </a>
-            </div>
+            <p className="finish-message">Your new Home is ready. Your original launcher is still installed, so switching back is always an option.</p>
             <div className="finish-actions">
               <button className="button button-quiet" onClick={() => { setRestoreOnReturn(true); setActiveStep(4); setScreen("guide") }}><RotateCcw size={15} aria-hidden="true" /> Keep restore steps handy</button>
               <button className="button button-primary" onClick={startOver}>Back to start <ArrowRight size={15} aria-hidden="true" /></button>
